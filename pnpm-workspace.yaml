@@ -1,5 +1,5 @@
 allowBuilds:
-  core-js: set this to true or false
-  medusa-telemetry: set this to true or false
-  msgpackr-extract: set this to true or false
-  unrs-resolver: set this to true or false
+  core-js: true
+  medusa-telemetry: true
+  msgpackr-extract: true
+  unrs-resolver: true
