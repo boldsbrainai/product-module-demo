@@ -11,11 +11,28 @@ type Data = {
   categoryName?: string;
 };
 
+function hasKvConfig() {
+  return Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+}
+
+async function loadProductsWithFallback(req: NextRequest, continent: string) {
+  try {
+    return await queryProducts(req, continent);
+  } catch (error) {
+    console.error("[API] Falling back to empty products payload", error);
+
+    return [
+      {
+        categoryId: undefined,
+        categoryName: undefined,
+      },
+      [[], []] as [ProductTypes.ProductDTO[], ProductTypes.ProductDTO[]],
+    ] as const;
+  }
+}
+
 export async function GET(req: NextRequest) {
   const start = performance.now();
-
-  // If already instantiated, it will return the instance or create a new one
-  const productService = await ProductModuleInitialize();
 
   const countryCode: string = req.headers.get("x-country") ?? "US";
 
@@ -25,7 +42,7 @@ export async function GET(req: NextRequest) {
   const now = performance.now();
 
   const [{ categoryId, categoryName }, [personalizedProducts, allProducts]] =
-    await queryProducts(req, continent);
+    await loadProductsWithFallback(req, continent);
 
   const end = performance.now();
   console.log(`[API] queryProducts + getKvData took ${end - now}ms`);
@@ -65,8 +82,12 @@ async function queryProducts(
 
   const start = performance.now();
 
+  const userDataPromise = hasKvConfig() && userId
+    ? kv.get<UserData>(userId)
+    : Promise.resolve({} as UserData);
+
   const [userData, ...productsData] = await Promise.all([
-    userId ? kv.get<UserData>(userId) : Promise.resolve({} as UserData),
+    userDataPromise,
     productService
       .list(
         {
@@ -77,7 +98,7 @@ async function queryProducts(
           take: 3,
         }
       )
-      .finally((data: ProductTypes.ProductDTO[]) => {
+      .then((data: ProductTypes.ProductDTO[]) => {
         const end = performance.now();
         console.log(`[API] productService.list take 3 took ${end - start}ms`);
         return data;
@@ -91,7 +112,7 @@ async function queryProducts(
           take: 100,
         }
       )
-      .finally((data: ProductTypes.ProductDTO[]) => {
+      .then((data: ProductTypes.ProductDTO[]) => {
         const end = performance.now();
         console.log(`[API] productService.list take 100 took ${end - start}ms`);
         return data;
