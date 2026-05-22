@@ -9,25 +9,45 @@ type Props = {
 };
 
 async function getProduct(handle: string) {
-  const region = await client.regions.list().then((res) => res.regions[0]);
+  try {
+    const region = await client.regions.list().then((res) => res.regions[0]);
 
-  const product = await client.products
-    .list({
-      handle,
-      expand: "variants,variants.prices,tags,categories",
-      region_id: region.id ?? undefined,
-    })
-    .then((res) => res.products[0]);
+    const product = await client.products
+      .list({
+        handle,
+        expand: "variants,variants.prices,tags,categories",
+        region_id: region?.id ?? undefined,
+      })
+      .then((res) => res.products[0]);
 
-  if (!product) {
-    throw new Error(`Product with handle ${handle} not found`);
+    if (!product) {
+      return null;
+    }
+
+    return product as unknown as Product;
+  } catch (error) {
+    console.error("[Product Page] Failed to load product", error);
+    return null;
   }
-
-  return product as unknown as Product;
 }
 
 export default async function ProductModal({ params: { handle } }: Props) {
   const product = await getProduct(handle);
+
+  if (!product) {
+    return (
+      <Modal>
+        <div className="w-full px-4">
+          <div className="w-full py-16">
+            <p className="text-subtle-dark">
+              Product details are temporarily unavailable.
+            </p>
+          </div>
+        </div>
+      </Modal>
+    );
+  }
+
   return (
     <Modal>
       <div className="w-full px-4">

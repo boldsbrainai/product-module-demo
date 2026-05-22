@@ -3,18 +3,35 @@ import { cookies } from "next/headers";
 import { Cart } from "@medusajs/client-types";
 import CartButton from "./CartButton";
 
-async function createCart() {
-  const region = await client.regions.list({
-    limit: 1,
-  }).then((res) => res.regions[0]);
+function createFallbackCart(cartId?: string) {
+  return {
+    id: cartId ?? "offline-cart",
+    items: [],
+  } as unknown as Cart;
+}
 
-  const res = await client.carts.create({ region_id: region.id });
-  return res.cart as unknown as Cart;
+async function createCart() {
+  try {
+    const region = await client.regions.list({
+      limit: 1,
+    }).then((res) => res.regions[0]);
+
+    const res = await client.carts.create({ region_id: region?.id });
+    return res.cart as unknown as Cart;
+  } catch (error) {
+    console.error("[Cart] Failed to create cart", error);
+    return createFallbackCart();
+  }
 }
 
 async function getCart(cartId: string) {
-  const res = await client.carts.retrieve(cartId);
-  return res.cart as unknown as Cart;
+  try {
+    const res = await client.carts.retrieve(cartId);
+    return res.cart as unknown as Cart;
+  } catch (error) {
+    console.error("[Cart] Failed to retrieve cart", error);
+    return createFallbackCart(cartId);
+  }
 }
 
 export default async function Cart() {

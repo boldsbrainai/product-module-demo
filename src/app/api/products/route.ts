@@ -36,7 +36,9 @@ export async function GET(req: NextRequest) {
 
   const countryCode: string = req.headers.get("x-country") ?? "US";
 
-  const { name: country, continent } = isoAlpha2Countries[countryCode];
+  const countryData =
+    isoAlpha2Countries[countryCode] ?? isoAlpha2Countries.US;
+  const { name: country, continent } = countryData;
   const continentText = formatContinent(continent);
 
   const now = performance.now();
@@ -83,7 +85,10 @@ async function queryProducts(
   const start = performance.now();
 
   const userDataPromise = hasKvConfig() && userId
-    ? kv.get<UserData>(userId)
+    ? kv.get<UserData>(userId).catch((error) => {
+        console.error("[API] Failed to read KV user data", error);
+        return {} as UserData;
+      })
     : Promise.resolve({} as UserData);
 
   const [userData, ...productsData] = await Promise.all([

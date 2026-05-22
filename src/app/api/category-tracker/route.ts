@@ -31,7 +31,11 @@ export async function POST(request: NextRequest) {
     return new NextResponse();
   }
 
-  await kv.set(userId, userData);
+  try {
+    await kv.set(userId, userData);
+  } catch (error) {
+    console.error("[Category Tracker] Failed to persist category", error);
+  }
 
   return new NextResponse();
 }
@@ -47,7 +51,11 @@ export async function DELETE(request: NextRequest) {
     return new NextResponse();
   }
 
-  await kv.set(userId, userData);
+  try {
+    await kv.set(userId, userData);
+  } catch (error) {
+    console.error("[Category Tracker] Failed to clear category", error);
+  }
 
   return new NextResponse();
 }
