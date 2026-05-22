@@ -14,13 +14,24 @@ type Props = {
   loadingTime: number;
 };
 
+type GtagFn = (...args: unknown[]) => void;
+
+function getGtag(): GtagFn | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const maybeGtag = (window as Window & { gtag?: GtagFn }).gtag;
+  return typeof maybeGtag === "function" ? maybeGtag : null;
+}
+
 function setQ(q: string | null) {
   const searchParams = new URLSearchParams(window.location.search);
   if (!q) {
     searchParams.delete("cc");
   } else {
     searchParams.set("cc", q);
-    gtag("event", "set_location", {
+    getGtag()?.("event", "set_location", {
       country_code: q,
       page_path: window.location.pathname,
       send_to: process.env.NEXT_PUBLIC_GA_ID,
@@ -45,7 +56,7 @@ export default function ControlPanel({ data, loadingTime }: Props) {
     await resetUserData();
     setQ("");
 
-    gtag("event", "reset", {
+    getGtag()?.("event", "reset", {
       page_path: window.location.pathname,
       reset_method,
       send_to: process.env.NEXT_PUBLIC_GA_ID,

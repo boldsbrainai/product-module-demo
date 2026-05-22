@@ -6,12 +6,27 @@ import { memo, useEffect } from "react";
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 
+type GtagFn = (...args: unknown[]) => void;
+
+function getGtag(): GtagFn | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const maybeGtag = (window as Window & { gtag?: GtagFn }).gtag;
+  return typeof maybeGtag === "function" ? maybeGtag : null;
+}
+
 export const GoogleAnalytics = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   useEffect(() => {
     if (!GA_ID) return;
+
+    const gtag = getGtag();
+    if (!gtag) return;
+
     gtag("config", GA_ID, {
       send_page_view: false,
     });
@@ -24,6 +39,9 @@ export const GoogleAnalytics = () => {
   useEffect(() => {
     const handleRouteChange = (url: string) => {
       if (!GA_ID) return;
+
+      const gtag = getGtag();
+      if (!gtag) return;
 
       gtag("event", "page_view", {
         page_path: url,
