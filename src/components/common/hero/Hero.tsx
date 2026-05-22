@@ -11,7 +11,7 @@ const Hero = () => {
           <div className="text-base-light dark:text-base-dark text-3xl md:text-4xl">
             Product Module Demo
           </div>
-          <div className="flex flex-wrap flex-inline justify-center gap-x-1 gap-y-2 text-subtle-light dark:text-subtle-dark max-w-fit text-center">
+          <div className="inline-flex flex-wrap justify-center gap-x-1 gap-y-2 text-subtle-light dark:text-subtle-dark max-w-fit text-center">
             <span className="flex flex-row gap-1 flex-wrap justify-center">
               This demo uses
               <span className="flex flex-row items-center gap-1">

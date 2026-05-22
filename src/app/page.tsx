@@ -14,6 +14,45 @@ const baseURL =
     ? "http://localhost:3000"
     : `https://${process.env.VERCEL_URL}`;
 
+const emptyPersonalizationData: PersonalizationData = {
+  personalized_section: {
+    country: "Unknown",
+    continent_text: {
+      name: "Unknown",
+      article: "an unknown",
+    },
+    products: [],
+  },
+  all_products_section: {
+    category_name: "",
+    products: [] as PersonalizationData["all_products_section"]["products"],
+  },
+};
+
+async function fetchPersonalizationData(options: RequestInit) {
+  try {
+    const response = await fetch(`${baseURL}/api/products`, options);
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const contentType = response.headers.get("content-type") ?? "";
+    if (!contentType.includes("application/json")) {
+      return null;
+    }
+
+    const payload = await response.text();
+    if (!payload.trim()) {
+      return null;
+    }
+
+    return JSON.parse(payload) as PersonalizationData;
+  } catch {
+    return null;
+  }
+}
+
 export default async function Home({
   searchParams: { cc },
 }: {
@@ -30,7 +69,7 @@ export default async function Home({
 
   const start = performance.now();
 
-  const data = await (await fetch(`${baseURL}/api/products`, options)).json();
+  const data = (await fetchPersonalizationData(options)) ?? emptyPersonalizationData;
 
   // TODO: add fallback UI if error in the API call
 

@@ -1,9 +1,9 @@
 import { Modal } from "@/components";
 import {
   CodeSnippet,
-  CustomListItem,
   EnlargableImage,
 } from "@/components/common";
+import { Circle } from "@/components/icons/circle";
 import { Github, Nextjs, Sparkles } from "@/components/icons";
 import { Metadata } from "next";
 
@@ -19,7 +19,7 @@ export default async function AboutModal() {
       href="https://docs.medusajs.com/modules/products/serverless-module?utm_source=product-module-demo&utm_medium=recap&utm_campaign=about-page&utm_content=cta"
     >
       <div className="w-full">
-        <div className="flex w-full h-[30rem] bg-center bg-cover bg-no-repeat flex-start justify-center py-[4rem] my-[-6rem] bg-[url('/hero.svg')] bg-base-light dark:bg-base-dark rounded-2xl">
+        <div className="flex w-full h-[30rem] items-start justify-center bg-center bg-cover bg-no-repeat py-[4rem] my-[-6rem] bg-[url('/hero.svg')] bg-base-light dark:bg-base-dark rounded-2xl">
           <div className="inset-0 flex flex-col gap-6 items-center justify-center">
             <div className="flex flex-col gap-2 items-center justify-center text-center text-headers-h3 md:text-4xl">
               <div className="text-base-light dark:text-base-dark">
@@ -118,7 +118,7 @@ export default async function AboutModal() {
             How we implemented personalization
           </h4>
 
-          <div className="flex flex-inline gap-6 items-center rounded-md p-6 bg-overlay-dark border border-base-dark text-labels-regular text-subtle-dark">
+          <div className="inline-flex gap-6 items-center rounded-md p-6 bg-overlay-dark border border-base-dark text-labels-regular text-subtle-dark">
             <Github className="min-w-[20px]" />
             <span>
               The code snippets below are simplified for readability. You can
@@ -132,105 +132,150 @@ export default async function AboutModal() {
               .
             </span>
           </div>
-
-          <ul className="list-none w-full">
-            <CustomListItem title="Product Module">
-              <span className="text-base-dark text-labels-regular">
-                Initialize the Product Module.
-              </span>
-              <p>Simply initialize the module in the Next.js API route.</p>
-              <CodeSnippet
-                label="/api/products/route.ts"
-                language="javascript"
-                code={`import { initialize as initializeProductModule } from \"@medusajs\/product\";\r\n\r\nexport async function GET(req) {\r\n  const productService = await initializeProductModule();\r\n\r\n  \/\/ list all products\r\n  const products = await productService.list({});\r\n  \r\n  return NextResponse.json({ products });\r\n}`}
-              />
-              <p>All products are now displayed in standard order.</p>
-              <EnlargableImage
-                src="/all-initial.png"
-                alt="All products - initial state"
-                width={1307}
-                height={934}
-                sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
-              />
-            </CustomListItem>
-            <CustomListItem title="User location">
-              <span className="text-base-dark text-labels-regular">
-                Get the user&apos;s location from the request header.
-              </span>
-              <p>
-                We use the Vercel country header by default, or overwrite it
-                with a simulated location when provided.
-              </p>
-              <CodeSnippet
-                label="/api/products/route.ts"
-                language="javascript"
-                code={`import { initialize as initializeProductModule } from \"@medusajs\/product\";\r\n\r\nexport async function GET(req) {\r\n\tconst productService = await initializeProductModule();\r\n\r\n\t\/\/ Get the user\'s (simulated) country code from the header. \r\n\tconst countryCode = req.headers.get(\"x-country\"); \r\n\t\r\n\t\/\/ Get the user\'s continent from a mapper.\r\n\tconst { name: country, continent } = isoAlpha2Countries[countryCode];\r\n\t\r\n\t\/\/ List 3 products with a tag that matches the user\'s continent.\r\n\tconst personalizedProducts = await productService.list(\r\n\t  { tags: { value: [continent] } },\r\n\t  { take: 3 }\r\n\t);\r\n\r\n\treturn NextResponse.json({ personalizedProducts });\r\n}`}
-              />
-              <p>Display the localized products.</p>
-              <EnlargableImage
-                src="/local-initial.png"
-                alt="Localised products - initial state"
-                width={1304}
-                height={487}
-                sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
-              />
-              <p>
-                You can simulate a different location using the control panel.
-              </p>
-              <EnlargableImage
-                src="/simulate-location.png"
-                alt="Simulate your location from the control panel."
-                width={(776 / 3) * 2}
-                height={(331 / 3) * 2}
-                sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
-              />
-            </CustomListItem>
-            <CustomListItem title="Last viewed product">
-              <span className="text-base-dark text-labels-regular">
-                Store the user&apos;s last viewed category in a Vercel KV store.
-              </span>
-              <p>
-                When a user clicks a product, we store the product&apos;s
-                category data in a KV store.
-              </p>
-              <CodeSnippet
-                label="/api/category-tracker/route.ts"
-                language="javascript"
-                code={`import { kv } from \"@vercel\/kv\";\r\n\r\nexport async function POST(req) {\r\n\t\/\/ Grab the category data from the request.\r\n\tconst { categoryId, categoryName } = await req.json();\r\n\t\r\n\tconst userData = {\r\n\t  categoryId,\r\n\t  categoryName,\r\n\t};\r\n\t\r\n\t\/\/ Grab the userId from the cookie and assign the category data to the userId \r\n\t\/\/ in the KV store.\r\n\tconst userId = req.cookies.get(\"userId\").value;\r\n\tawait kv.set(userId, userData);\r\n\r\n\treturn new NextResponse();\r\n}`}
-              />
-              <p>Click a product to view its product page.</p>
-              <EnlargableImage
-                src="/click-product.png"
-                alt="Click a product to view its product page."
-                width={(435 / 3) * 2}
-                height={(375 / 3) * 2}
-                sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
-              />
-            </CustomListItem>
-            <CustomListItem title="Personalize products">
-              <span className="text-base-dark text-labels-regular">
-                Display all products with the last viewed category&apos;s
-                products on top.
-              </span>
-              <p>
-                We grab the user&apos;s last viewed category from the KV store
-                and sort all products with that category on top.
-              </p>
-              <CodeSnippet
-                label="/api/products/route.ts"
-                language="javascript"
-                code={`import { initialize as initializeProductModule } from \"@medusajs\/product\";\r\nimport { kv } from \"@vercel\/kv\";\r\n\r\nexport async function GET(req) {\r\n\tconst productService = await initializeProductModule();\r\n\r\n\t\/\/ Grab the userId from the request and look up the categoryId from the KV.\r\n\tconst userId = req.cookies.get(\"userId\").value;\r\n\tconst { categoryId } = await kv.get(userId);\r\n\t\r\n\t\/\/ Get all products.\r\n\tconst allProducts = await productService.list({});\r\n\t\r\n\t\/\/ Re-order the products based on the last viewed categoryId.\r\n\tconst orderedProducts = orderProductByCategoryIdFirst(allProducts, categoryId);\r\n\r\n\treturn NextResponse.json({ orderedProducts });\r\n}`}
-              />
-              <p>Tote bags are now displayed on top!</p>
-              <EnlargableImage
-                src="/all-ordered.png"
-                alt="Tote bags are now displayed on top"
-                width={1309}
-                height={938}
-                sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
-              />
-            </CustomListItem>
-          </ul>
+            <ul className="list-none w-full">
+                <li className="flex flex-row h-full w-[calc(100%-2rem)] md:w-full relative">
+                  <div className="flex flex-col items-center w-6 mr-4">
+                    <Circle fill="#1c1c1c" className="z-10 mt-1" />
+                    <div className="h-full mt-1 w-[1px] bg-[#2E2E32] absolute top-0 z-0"></div>
+                  </div>
+                  <div className="flex flex-col gap-y-2 h-full md:pl-12 mb-8 w-full">
+                    <span className="text-tag-purple text-labels-small font-medium">
+                      Product Module
+                    </span>
+                    <div className="text-subtle-light dark:text-subtle-dark text-body-regular">
+                      <span className="text-base-dark text-labels-regular">
+                        Initialize the Product Module.
+                      </span>
+                      <p>Simply initialize the module in the Next.js API route.</p>
+                      <CodeSnippet
+                        label="/api/products/route.ts"
+                        language="javascript"
+                        code={`import { initialize as initializeProductModule } from "@medusajs\/product";\r\n\r\nexport async function GET(req) {\r\n  const productService = await initializeProductModule();\r\n\r\n  \/\/ list all products\r\n  const products = await productService.list({});\r\n  \r\n  return NextResponse.json({ products });\r\n}`}
+                      />
+                      <p>All products are now displayed in standard order.</p>
+                      <EnlargableImage
+                        src="/all-initial.png"
+                        alt="All products - initial state"
+                        width={1307}
+                        height={934}
+                        sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
+                      />
+                    </div>
+                  </div>
+                </li>
+                <li className="flex flex-row h-full w-[calc(100%-2rem)] md:w-full relative">
+                  <div className="flex flex-col items-center w-6 mr-4">
+                    <Circle fill="#1c1c1c" className="z-10 mt-1" />
+                    <div className="h-full mt-1 w-[1px] bg-[#2E2E32] absolute top-0 z-0"></div>
+                  </div>
+                  <div className="flex flex-col gap-y-2 h-full md:pl-12 mb-8 w-full">
+                    <span className="text-tag-purple text-labels-small font-medium">
+                      User location
+                    </span>
+                    <div className="text-subtle-light dark:text-subtle-dark text-body-regular">
+                      <span className="text-base-dark text-labels-regular">
+                        Get the user&apos;s location from the request header.
+                      </span>
+                      <p>
+                        We use the Vercel country header by default, or overwrite
+                        it with a simulated location when provided.
+                      </p>
+                      <CodeSnippet
+                        label="/api/products/route.ts"
+                        language="javascript"
+                        code={`import { initialize as initializeProductModule } from "@medusajs\/product";\r\n\r\nexport async function GET(req) {\r\n\tconst productService = await initializeProductModule();\r\n\r\n\t\/\/ Get the user\'s (simulated) country code from the header. \r\n\tconst countryCode = req.headers.get("x-country"); \r\n\t\r\n\t\/\/ Get the user\'s continent from a mapper.\r\n\tconst { name: country, continent } = isoAlpha2Countries[countryCode];\r\n\t\r\n\t\/\/ List 3 products with a tag that matches the user\'s continent.\r\n\tconst personalizedProducts = await productService.list(\r\n\t  { tags: { value: [continent] } },\r\n\t  { take: 3 }\r\n\t);\r\n\r\n\treturn NextResponse.json({ personalizedProducts });\r\n}`}
+                      />
+                      <p>Display the localized products.</p>
+                      <EnlargableImage
+                        src="/local-initial.png"
+                        alt="Localised products - initial state"
+                        width={1304}
+                        height={487}
+                        sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
+                      />
+                      <p>
+                        You can simulate a different location using the control
+                        panel.
+                      </p>
+                      <EnlargableImage
+                        src="/simulate-location.png"
+                        alt="Simulate your location from the control panel."
+                        width={(776 / 3) * 2}
+                        height={(331 / 3) * 2}
+                        sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
+                      />
+                    </div>
+                  </div>
+                </li>
+                <li className="flex flex-row h-full w-[calc(100%-2rem)] md:w-full relative">
+                  <div className="flex flex-col items-center w-6 mr-4">
+                    <Circle fill="#1c1c1c" className="z-10 mt-1" />
+                    <div className="h-full mt-1 w-[1px] bg-[#2E2E32] absolute top-0 z-0"></div>
+                  </div>
+                  <div className="flex flex-col gap-y-2 h-full md:pl-12 mb-8 w-full">
+                    <span className="text-tag-purple text-labels-small font-medium">
+                      Last viewed product
+                    </span>
+                    <div className="text-subtle-light dark:text-subtle-dark text-body-regular">
+                      <span className="text-base-dark text-labels-regular">
+                        Store the user&apos;s last viewed category in a Vercel KV
+                        store.
+                      </span>
+                      <p>
+                        When a user clicks a product, we store the product&apos;s
+                        category data in a KV store.
+                      </p>
+                      <CodeSnippet
+                        label="/api/category-tracker/route.ts"
+                        language="javascript"
+                        code={`import { kv } from "@vercel\/kv";\r\n\r\nexport async function POST(req) {\r\n\t\/\/ Grab the category data from the request.\r\n\tconst { categoryId, categoryName } = await req.json();\r\n\t\r\n\tconst userData = {\r\n\t  categoryId,\r\n\t  categoryName,\r\n\t};\r\n\t\r\n\t\/\/ Grab the userId from the cookie and assign the category data to the userId \r\n\t\/\/ in the KV store.\r\n\tconst userId = req.cookies.get("userId").value;\r\n\tawait kv.set(userId, userData);\r\n\r\n\treturn new NextResponse();\r\n}`}
+                      />
+                      <p>Click a product to view its product page.</p>
+                      <EnlargableImage
+                        src="/click-product.png"
+                        alt="Click a product to view its product page."
+                        width={(435 / 3) * 2}
+                        height={(375 / 3) * 2}
+                        sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
+                      />
+                    </div>
+                  </div>
+                </li>
+                <li className="flex flex-row h-full w-[calc(100%-2rem)] md:w-full relative">
+                  <div className="flex flex-col items-center w-6 mr-4">
+                    <Circle fill="#1c1c1c" className="z-10 mt-1" />
+                    <div className="h-full mt-1 w-[1px] bg-[#2E2E32] absolute top-0 z-0"></div>
+                  </div>
+                  <div className="flex flex-col gap-y-2 h-full md:pl-12 mb-8 w-full">
+                    <span className="text-tag-purple text-labels-small font-medium">
+                      Personalize products
+                    </span>
+                    <div className="text-subtle-light dark:text-subtle-dark text-body-regular">
+                      <span className="text-base-dark text-labels-regular">
+                        Display all products with the last viewed category&apos;s
+                        products on top.
+                      </span>
+                      <p>
+                        We grab the user&apos;s last viewed category from the KV
+                        store and sort all products with that category on top.
+                      </p>
+                      <CodeSnippet
+                        label="/api/products/route.ts"
+                        language="javascript"
+                        code={`import { initialize as initializeProductModule } from "@medusajs\/product";\r\nimport { kv } from "@vercel\/kv";\r\n\r\nexport async function GET(req) {\r\n\tconst productService = await initializeProductModule();\r\n\r\n\t\/\/ Grab the userId from the request and look up the categoryId from the KV.\r\n\tconst userId = req.cookies.get("userId").value;\r\n\tconst { categoryId } = await kv.get(userId);\r\n\t\r\n\t\/\/ Get all products.\r\n\tconst allProducts = await productService.list({});\r\n\t\r\n\t\/\/ Re-order the products based on the last viewed categoryId.\r\n\tconst orderedProducts = orderProductByCategoryIdFirst(allProducts, categoryId);\r\n\r\n\treturn NextResponse.json({ orderedProducts });\r\n}`}
+                      />
+                      <p>Tote bags are now displayed on top!</p>
+                      <EnlargableImage
+                        src="/all-ordered.png"
+                        alt="Tote bags are now displayed on top"
+                        width={1309}
+                        height={938}
+                        sizes="(max-width: 576px) 280px, (max-width: 768px) 360px, (max-width: 992px) 480px, 800px"
+                      />
+                    </div>
+                  </div>
+                </li>
+              </ul>
 
           <div className="h-px bg-gradient-to-r from-transparent via-[#2E2E32] to-transparent my-6 md:my-10"></div>
 
