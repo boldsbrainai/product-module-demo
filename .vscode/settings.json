@@ -1,4 +1,6 @@
 {
   "python.envFile": "${workspaceFolder}\\.env",
-  "python.terminal.useEnvFile": true
+  "python.terminal.useEnvFile": true,
+  "chat.agent.allowedNetworkDomains": ["localhost", "127.0.0.1"],
+  "chat.agent.deniedNetworkDomains": []
 }
