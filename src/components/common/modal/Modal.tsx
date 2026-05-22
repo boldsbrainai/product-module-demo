@@ -1,6 +1,8 @@
 "use client";
 
-import { Button, Tag, XMark } from "@/components";
+import Button from "../button/Button";
+import Tag from "../tag/Tag";
+import XMark from "../../icons/x-mark/XMark";
 import { useRouter } from "next/navigation";
 import { PropsWithChildren, useCallback, useEffect, useRef } from "react";
 

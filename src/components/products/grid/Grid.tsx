@@ -1,4 +1,4 @@
-import { Card } from "@/components";
+import Card from "../card/Card";
 import { PricedProduct } from "@medusajs/client-types";
 
 type Props = {

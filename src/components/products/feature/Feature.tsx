@@ -1,4 +1,4 @@
-import { Grid } from "@/components";
+import Grid from "../grid/Grid";
 import { PricedProduct } from "@medusajs/client-types";
 
 type Props = {

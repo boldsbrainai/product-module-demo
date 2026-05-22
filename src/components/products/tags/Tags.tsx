@@ -1,4 +1,4 @@
-import { Tag } from "@/components";
+import Tag from "../../common/tag/Tag";
 import { ProductCategory, ProductTag } from "@medusajs/client-types";
 
 type Props = {

@@ -10,10 +10,10 @@ const FooterLink = ({ tag, className, children, href, ...rest }: Props) => {
   return (
     <a
       target="_blank"
-      rel="noopener norefferer"
+      rel="noopener noreferrer"
       href={href + "?utm_source=product-module-demo&utm_medium=recap&utm_campaign=footer"}
       className={clsx(
-        "text-labels-regular text-base-light dark:text-base-dark hover:text-subtl-light dark:hover:text-subtle-dark transition-colors",
+        "text-labels-regular text-base-light dark:text-base-dark hover:text-subtle-light dark:hover:text-subtle-dark transition-colors",
         className
       )}
       {...rest}
