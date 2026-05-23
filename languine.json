@@ -1,0 +1,16 @@
+{
+  "projectId": "prj_mahattto40jndagwni4tfrii",
+  "locale": {
+    "source": "en",
+    "targets": [
+      "pt-BR"
+    ]
+  },
+  "files": {
+    "json": {
+      "include": [
+        "src/locales/[locale].json"
+      ]
+    }
+  }
+}
